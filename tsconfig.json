@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        // Define o diretório base para resolver caminhos
+        "baseUrl": ".",
+        
+        // Define os atalhos (aliases)
+        "paths": {
+        "@/*": ["src/*"]
+        }
+    },
+    "files": [],
+    "references": [
+        { "path": "./tsconfig.app.json" },
+        { "path": "./tsconfig.node.json" }
+    ]
+}
