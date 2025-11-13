@@ -391,7 +391,7 @@ input, textarea, select {
 
 .alert-warning {
   background-color: #fff3e0;
-  color: #e65100;
+  color: #b84900;
   border-left: 4px solid var(--color-warning);
 }
 
@@ -400,3 +400,15 @@ input, textarea, select {
   color: #1565c0;
   border-left: 4px solid var(--color-info);
 }
+
+/* Ícones SVG */
+.svg-icon {
+    fill: var(--color-text-on-primary);
+    color: var(--color-text-on-primary);
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.svg-edit {fill: var(--color-info) !important; color: var(--color-info) !important;}
+
+.svg-delete {fill: var(--color-error) !important; color: var(--color-error) !important;}

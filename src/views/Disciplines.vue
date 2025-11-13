@@ -3,7 +3,7 @@
     <!-- Cabeçalho com botão de adicionar -->
     <div class="view-header">
       <button @click="openCreateModal" class="btn btn-primary">
-        <span>➕</span> Nova Disciplina
+        <span><PlusIcon class="svg-icon"/></span> Nova Disciplina
       </button>
     </div>
 
@@ -37,10 +37,10 @@
             <td>
               <div class="action-buttons">
                 <button @click="openEditModal(discipline)" class="btn-action btn-edit" title="Editar">
-                  ✏️
+                    <EditIcon class="svg-icon svg-edit"/>
                 </button>
                 <button @click="openDeleteModal(discipline)" class="btn-action btn-delete" title="Excluir">
-                  🗑️
+                  <DeleteIcon class="svg-icon svg-delete"/>
                 </button>
               </div>
             </td>
@@ -143,6 +143,9 @@
 import { ref, reactive, onMounted } from 'vue';
 import { disciplinesService } from '@/services/crudServices';
 import type { Discipline } from '@/types';
+import PlusIcon from '@/assets/icons/plus_icon.svg';
+import EditIcon from '@/assets/icons/edit_icon.svg';
+import DeleteIcon from '@/assets/icons/delete_icon.svg';
 
 const disciplines = ref<Discipline[]>([]);
 const loading = ref(false);

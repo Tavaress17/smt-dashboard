@@ -12,7 +12,7 @@
     <div v-else class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon" style="background: #e3f2fd;">
-          <span style="color: #1976d2;">👥</span>
+          <span><UsersIcon class="svg-icon" style="color: #1976d2 !important; fill: #1976d2 !important;"/></span>
         </div>
         <div class="stat-content">
           <h3>{{ stats.totalUsers }}</h3>
@@ -22,7 +22,7 @@
 
       <div class="stat-card">
         <div class="stat-icon" style="background: #f3e5f5;">
-          <span style="color: #7b1fa2;">👨‍🏫</span>
+          <span><ProfessorsIcon class="svg-icon" style="color: #7b1fa2 !important; fill: #7b1fa2 !important;"/></span>
         </div>
         <div class="stat-content">
           <h3>{{ stats.totalProfessors }}</h3>
@@ -32,7 +32,7 @@
 
       <div class="stat-card">
         <div class="stat-icon" style="background: #e8f5e9;">
-          <span style="color: #388e3c;">📚</span>
+          <span><CoursesIcon class="svg-icon" style="color: #388e3c !important; fill: #388e3c !important;"/></span>
         </div>
         <div class="stat-content">
           <h3>{{ stats.totalCourses }}</h3>
@@ -42,7 +42,7 @@
 
       <div class="stat-card">
         <div class="stat-icon" style="background: #fff3e0;">
-          <span style="color: #f57c00;">📖</span>
+          <span><DisciplinesIcon class="svg-icon" style="color: #f57c00 !important; fill: #f57c00 !important;"/></span>
         </div>
         <div class="stat-content">
           <h3>{{ stats.totalDisciplines }}</h3>
@@ -52,7 +52,7 @@
 
       <div class="stat-card">
         <div class="stat-icon" style="background: #fce4ec;">
-          <span style="color: #c2185b;">🏫</span>
+          <span><ClassroomsIcon class="svg-icon" style="color: #c2185b !important; fill: #c2185b !important;"/></span>
         </div>
         <div class="stat-content">
           <h3>{{ stats.totalClassrooms }}</h3>
@@ -62,7 +62,7 @@
 
       <div class="stat-card">
         <div class="stat-icon" style="background: #e0f2f1;">
-          <span style="color: #00796b;">📅</span>
+          <span><EventsIcon class="svg-icon" style="color: #00796b !important; fill: #00796b !important;"/></span>
         </div>
         <div class="stat-content">
           <h3>{{ stats.totalEvents }}</h3>
@@ -77,6 +77,12 @@
 import { ref, onMounted } from 'vue';
 import { dashboardService } from '@/services/crudServices';
 import type { DashboardStats } from '@/types';
+import UsersIcon from '@/assets/icons/users_icon.svg';
+import ProfessorsIcon from '@/assets/icons/professors_icon.svg';
+import CoursesIcon from '@/assets/icons/courses_icon.svg';
+import DisciplinesIcon from '@/assets/icons/disciplines_icon.svg';
+import ClassroomsIcon from '@/assets/icons/classrooms_icon.svg';
+import EventsIcon from '@/assets/icons/events_icon.svg';
 
 const stats = ref<DashboardStats>({
   totalUsers: 0,

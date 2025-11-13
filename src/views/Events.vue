@@ -3,7 +3,7 @@
         <!-- Cabeçalho com botão de adicionar -->
         <div class="view-header">
             <button @click="openCreateModal" class="btn btn-primary">
-                <span>➕</span> Novo Evento
+                <span><PlusIcon class="svg-icon"/></span> Novo Evento
             </button>
         </div>
 
@@ -24,8 +24,13 @@
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>Abreviação</th>
+                        <th>Dia da Semana</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Sala</th>
+                        <th>Professor</th>
                         <th>Curso</th>
+                        <th>Disciplina</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -35,17 +40,17 @@
                         <td>{{ event.weekday }}</td>
                         <td>{{ event.startTime }}</td>
                         <td>{{ event.endTime }}</td>
-                        <td>{{ event.classroomId }}</td>
-                        <td>{{ event.professorId }}</td>
-                        <td>{{ event.courseId }}</td>
-                        <td>{{ event.disciplineId }}</td>
+                        <td>{{ event.classroom?.description }}</td>
+                        <td>{{ event.professor?.description }}</td>
+                        <td>{{ event.course?.description }}</td>
+                        <td>{{ event.discipline?.description }}</td>
                         <td>
                             <div class="action-buttons">
                                 <button @click="openEditModal(event)" class="btn-action btn-edit" title="Editar">
-                                    ✏️
+                                    <EditIcon class="svg-icon svg-edit"/>
                                 </button>
                                 <button @click="openDeleteModal(event)" class="btn-action btn-delete" title="Excluir">
-                                    🗑️
+                                    <DeleteIcon class="svg-icon svg-delete"/>
                                 </button>
                             </div>
                         </td>
@@ -91,24 +96,24 @@
 
                     <div class="input-group">
                         <label for="classroomId" class="input-label">Sala *</label>
-                        <input id="classroomId" v-model="formData.classroomId" type="text" class="input-field"
+                        <input id="classroomId" v-model="formData.classroomDesc" type="text" class="input-field"
                             required />
                     </div>
 
                     <div class="input-group">
                         <label for="professorId" class="input-label">Professor *</label>
-                        <input id="professorId" v-model="formData.professorId" type="text" class="input-field"
+                        <input id="professorId" v-model="formData.professorDesc" type="text" class="input-field"
                             required />
                     </div>
 
                     <div class="input-group">
                         <label for="courseId" class="input-label">Curso *</label>
-                        <input id="courseId" v-model="formData.courseId" type="text" class="input-field" required />
+                        <input id="courseId" v-model="formData.courseDesc" type="text" class="input-field" required />
                     </div>
 
                     <div class="input-group">
                         <label for="disciplineId" class="input-label">Disciplina *</label>
-                        <input id="disciplineId" v-model="formData.disciplineId" type="text" class="input-field" required />
+                        <input id="disciplineId" v-model="formData.disciplineDesc" type="text" class="input-field" required />
                     </div>
 
                     <div v-if="formError" class="alert alert-error">
@@ -157,9 +162,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { eventsService } from '@/services/crudServices';
-import type { Event } from '@/types';
+import type { Event, EventAggregated } from '@/types';
+import PlusIcon from '@/assets/icons/plus_icon.svg';
+import EditIcon from '@/assets/icons/edit_icon.svg';
+import DeleteIcon from '@/assets/icons/delete_icon.svg';
 
-const events = ref<Event[]>([]);
+const events = ref<EventAggregated[]>([]);
 const loading = ref(false);
 const error = ref('');
 
@@ -182,6 +190,10 @@ const formData = reactive({
     professorId: '',
     courseId: '',
     disciplineId: '',
+    courseDesc: '',
+    disciplineDesc: '',
+    professorDesc: '',
+    classroomDesc: '',
 });
 
 const loadEvents = async () => {
@@ -204,16 +216,20 @@ const openCreateModal = () => {
     showModal.value = true;
 };
 
-const openEditModal = (event: Event) => {
+const openEditModal = (event: EventAggregated) => {
     isEditing.value = true;
     formData.description = event.description;
     formData.weekday = event.weekday;
     formData.startTime = event.startTime;
     formData.endTime = event.endTime;
-    formData.classroomId = event.classroomId;
-    formData.professorId = event.professorId;
-    formData.courseId = event.courseId;
-    formData.disciplineId = event.disciplineId;
+    formData.classroomId = event.classroom.id;
+    formData.professorId = event.professor.id;
+    formData.courseId = event.course.id;
+    formData.disciplineId = event.discipline.id;
+    formData.classroomDesc = event.classroom.description;
+    formData.professorDesc = event.professor.description;
+    formData.courseDesc = event.course.description;
+    formData.disciplineDesc = event.discipline.description;
     showModal.value = true;
 };
 
@@ -265,8 +281,18 @@ const handleSubmit = async () => {
     }
 };
 
-const openDeleteModal = (event: Event) => {
-    selectedEvent.value = event;
+const openDeleteModal = (event: EventAggregated) => {
+    selectedEvent.value = { 
+        id: event.id, 
+        description: event.description,
+        weekday: event.weekday,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        classroomId: event.classroom.id,
+        professorId: event.professor.id,
+        courseId: event.course.id,
+        disciplineId: event.discipline.id,
+    } as Event;
     showDeleteModal.value = true;
 };
 

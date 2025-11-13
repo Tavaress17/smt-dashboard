@@ -3,7 +3,7 @@
     <!-- Cabeçalho com botão de adicionar -->
     <div class="view-header">
       <button @click="openCreateModal" class="btn btn-primary">
-        <span>➕</span> Novo Usuário
+        <span><PlusIcon class="svg-icon"/></span> Novo Usuário
       </button>
     </div>
 
@@ -46,15 +46,15 @@
             <td>
               <div class="action-buttons">
                 <button @click="openEditModal(user)" class="btn-action btn-edit" title="Editar">
-                  ✏️
+                    <EditIcon class="svg-icon svg-edit"/>
                 </button>
                 <button @click="openDeleteModal(user)" class="btn-action btn-delete" title="Excluir">
-                  🗑️
+                  <DeleteIcon class="svg-icon svg-delete"/>
                 </button>
               </div>
             </td>
           </tr>
-          <tr v-if="users.length === 0">
+          <tr v-if="users?.length === 0">
             <td colspan="5" style="text-align: center; padding: 2rem;">
               Nenhum usuário cadastrado
             </td>
@@ -163,6 +163,9 @@
 import { ref, reactive, onMounted } from 'vue';
 import { usersService } from '@/services/crudServices';
 import type { User } from '@/types';
+import PlusIcon from '@/assets/icons/plus_icon.svg';
+import EditIcon from '@/assets/icons/edit_icon.svg';
+import DeleteIcon from '@/assets/icons/delete_icon.svg';
 
 const users = ref<User[]>([]);
 const loading = ref(false);

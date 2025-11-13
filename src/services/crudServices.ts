@@ -6,16 +6,17 @@ import type {
   Discipline,
   Classroom,
   Event,
-  APIResponse,
   APIError,
+  EventAggregated,
 } from '@/types';
 
 // ==================== USERS ====================
 export const usersService = {
   async getAll(): Promise<User[]> {
     try {
-      const response = await api.get<APIResponse<User[]>>('/admin/users');
-      return response.data.data;
+      const response = await api.get<User[]>('/admin/users');
+      // console.log(response)
+      return response.data;
     } catch (error) {
       throw error as APIError;
     }
@@ -64,8 +65,8 @@ export const usersService = {
 export const professorsService = {
   async getAll(): Promise<Professor[]> {
     try {
-      const response = await api.get<APIResponse<Professor[]>>('/admin/professors');
-      return response.data.data;
+      const response = await api.get<Professor[]>('/admin/professors');
+      return response.data;
     } catch (error) {
       throw error as APIError;
     }
@@ -101,8 +102,8 @@ export const professorsService = {
 export const coursesService = {
   async getAll(): Promise<Course[]> {
     try {
-      const response = await api.get<APIResponse<Course[]>>('/admin/courses');
-      return response.data.data;
+      const response = await api.get<Course[]>('/admin/courses');
+      return response.data;
     } catch (error) {
       throw error as APIError;
     }
@@ -138,8 +139,8 @@ export const coursesService = {
 export const disciplinesService = {
   async getAll(): Promise<Discipline[]> {
     try {
-      const response = await api.get<APIResponse<Discipline[]>>('/admin/disciplines');
-      return response.data.data;
+      const response = await api.get<Discipline[]>('/admin/disciplines');
+      return response.data;
     } catch (error) {
       throw error as APIError;
     }
@@ -182,8 +183,8 @@ export const disciplinesService = {
 export const classroomsService = {
   async getAll(): Promise<Classroom[]> {
     try {
-      const response = await api.get<APIResponse<Classroom[]>>('/admin/classrooms');
-      return response.data.data;
+      const response = await api.get<Classroom[]>('/admin/classrooms');
+      return response.data;
     } catch (error) {
       throw error as APIError;
     }
@@ -232,10 +233,10 @@ export const classroomsService = {
 
 // ==================== EVENTS ====================
 export const eventsService = {
-  async getAll(): Promise<Event[]> {
+  async getAll(): Promise<EventAggregated[]> {
     try {
-      const response = await api.get<APIResponse<Event[]>>('/admin/events');
-      return response.data.data;
+      const response = await api.get<EventAggregated[]>('/dashboard/events');
+      return response.data;
     } catch (error) {
       throw error as APIError;
     }

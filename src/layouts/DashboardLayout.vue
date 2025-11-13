@@ -9,40 +9,40 @@
 
       <nav class="sidebar-nav">
         <router-link to="/home" class="nav-item" active-class="active">
-          <span class="nav-icon">🏠</span>
-          <span class="nav-text">Home</span>
+          <span class="nav-icon"><HomeIcon class="svg-icon"/></span>
+          <span class="nav-text">Início</span>
         </router-link>
 
         <div v-if="authStore.isAdmin" class="nav-section">
           <p class="nav-section-title">Gerenciamento</p>
 
           <router-link to="/users" class="nav-item" active-class="active">
-            <span class="nav-icon">👥</span>
+            <span class="nav-icon"><UsersIcon class="svg-icon"/></span>
             <span class="nav-text">Usuários</span>
           </router-link>
 
           <router-link to="/professors" class="nav-item" active-class="active">
-            <span class="nav-icon">👨‍🏫</span>
+            <span class="nav-icon"><ProfessorsIcon class="svg-icon"/></span>
             <span class="nav-text">Professores</span>
           </router-link>
 
           <router-link to="/courses" class="nav-item" active-class="active">
-            <span class="nav-icon">📚</span>
+            <span class="nav-icon"><CoursesIcon class="svg-icon"/></span>
             <span class="nav-text">Cursos</span>
           </router-link>
 
           <router-link to="/disciplines" class="nav-item" active-class="active">
-            <span class="nav-icon">📖</span>
+            <span class="nav-icon"><DisciplinesIcon class="svg-icon"/></span>
             <span class="nav-text">Disciplinas</span>
           </router-link>
 
           <router-link to="/classrooms" class="nav-item" active-class="active">
-            <span class="nav-icon">🏫</span>
+            <span class="nav-icon"><ClassroomsIcon class="svg-icon"/></span>
             <span class="nav-text">Salas</span>
           </router-link>
 
           <router-link to="/events" class="nav-item" active-class="active">
-            <span class="nav-icon">📅</span>
+            <span class="nav-icon"><EventsIcon class="svg-icon"/></span>
             <span class="nav-text">Eventos</span>
           </router-link>
         </div>
@@ -50,7 +50,7 @@
 
       <div class="sidebar-footer">
         <button @click="handleLogout" class="btn-logout">
-          <span class="nav-icon">🚪</span>
+          <span class="nav-icon"><LogoutIcon class="svg-icon"/></span>
           <span class="nav-text">Sair</span>
         </button>
       </div>
@@ -77,6 +77,14 @@
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import HomeIcon from '@/assets/icons/home_icon.svg';
+import UsersIcon from '@/assets/icons/users_icon.svg';
+import ProfessorsIcon from '@/assets/icons/professors_icon.svg';
+import CoursesIcon from '@/assets/icons/courses_icon.svg';
+import DisciplinesIcon from '@/assets/icons/disciplines_icon.svg';
+import ClassroomsIcon from '@/assets/icons/classrooms_icon.svg';
+import EventsIcon from '@/assets/icons/events_icon.svg';
+import LogoutIcon from '@/assets/icons/logout_icon.svg';
 
 const router = useRouter();
 const route = useRoute();

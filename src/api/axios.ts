@@ -7,7 +7,6 @@ const API_BASE_URL = 'http://localhost/api/v1';
 // Criação da instância do Axios
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
   },
