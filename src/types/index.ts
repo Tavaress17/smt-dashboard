@@ -65,6 +65,13 @@ export interface Discipline {
     courseId: string;
 }
 
+export interface DisciplineAggregated {
+    id: string;
+    name: string;
+    abbreviation: string;
+    course: { id: string; description: string; };
+}
+
 export interface Classroom {
     id: string;
     description: string;

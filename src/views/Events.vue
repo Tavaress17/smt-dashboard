@@ -189,7 +189,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { eventsService, classroomsService, professorsService, coursesService, disciplinesService } from '@/services/crudServices';
-import type { Event, EventAggregated, Classroom, Professor, Course, Discipline, DaysEnum } from '@/types';
+import type { Event, EventAggregated, Classroom, Professor, Course, DaysEnum, DisciplineAggregated } from '@/types';
 import PlusIcon from '@/assets/icons/plus_icon.svg';
 import EditIcon from '@/assets/icons/edit_icon.svg';
 import DeleteIcon from '@/assets/icons/delete_icon.svg';
@@ -218,7 +218,7 @@ const error = ref('');
 const classrooms = ref<Classroom[]>([]);
 const professors = ref<Professor[]>([]);
 const courses = ref<Course[]>([]);
-const disciplines = ref<Discipline[]>([]);
+const disciplines = ref<DisciplineAggregated[]>([]);
 const loadingOptions = ref(false);
 
 const showModal = ref(false);
@@ -372,6 +372,7 @@ const openDeleteModal = (event: EventAggregated) => {
         courseId: event.course.id,
         disciplineId: event.discipline.id,
     } as Event;
+
     showDeleteModal.value = true;
 };
 

@@ -33,7 +33,7 @@
           <tr v-for="discipline in disciplines" :key="discipline.id">
             <td>{{ discipline.name }}</td>
             <td>{{ discipline.abbreviation }}</td>
-            <td>{{ discipline.courseId }}</td>
+            <td>{{ discipline.course.description }}</td>
             <td>
               <div class="action-buttons">
                 <button @click="openEditModal(discipline)" class="btn-action btn-edit" title="Editar">
@@ -87,13 +87,12 @@
 
           <div class="input-group">
             <label for="courseId" class="input-label">Curso *</label>
-            <input
-              id="courseId"
-              v-model="formData.courseId"
-              type="text"
-              class="input-field"
-              required
-            />
+            <select id="courseId" v-model="formData.courseId" class="input-field" :disabled="loadingCourses" required>
+              <option value="" disabled>Selecione um curso</option>
+              <option v-for="course in courses" :key="course.id" :value="course.id">
+                {{ course.abbreviation }}
+              </option>
+            </select>
           </div>
 
           <div v-if="formError" class="alert alert-error">
@@ -141,15 +140,19 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { disciplinesService } from '@/services/crudServices';
-import type { Discipline } from '@/types';
+import { disciplinesService, coursesService } from '@/services/crudServices';
+import type { Discipline, DisciplineAggregated, Course } from '@/types';
 import PlusIcon from '@/assets/icons/plus_icon.svg';
 import EditIcon from '@/assets/icons/edit_icon.svg';
 import DeleteIcon from '@/assets/icons/delete_icon.svg';
 
-const disciplines = ref<Discipline[]>([]);
+const disciplines = ref<DisciplineAggregated[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+// Dados dos dropdowns
+const courses = ref<Course[]>([]);
+const loadingCourses = ref(false);
 
 const showModal = ref(false);
 const isEditing = ref(false);
@@ -181,18 +184,45 @@ const loadDisciplines = async () => {
   }
 };
 
-const openCreateModal = () => {
-  isEditing.value = false;
-  resetForm();
-  showModal.value = true;
+// Carregar cursos para o dropdown
+const loadCourses = async () => {
+  loadingCourses.value = true;
+
+  try {
+    const coursesData = await coursesService.getAll();
+
+    courses.value = coursesData;
+    } catch (err: any) {
+        formError.value = 'Erro ao carregar cursos';
+        console.error('Erro ao carregar cursos:', err);
+  } finally {
+    loadingCourses.value = false;
+  }
 };
 
-const openEditModal = (discipline: Discipline) => {
+const openCreateModal = async () => {
+    isEditing.value = false;
+    resetForm();
+    showModal.value = true;
+
+  // Carregar cursos se ainda não foram carregados
+    if (courses.value.length === 0) {
+        await loadCourses();
+    }
+};
+
+const openEditModal = async (discipline: DisciplineAggregated) => {
     isEditing.value = true;
     formData.name = discipline.name;
     formData.abbreviation = discipline.abbreviation;
-    formData.courseId = discipline.courseId;
+    formData.courseId = discipline.course.id;
+    
     showModal.value = true;
+
+    // Carregar cursos se ainda não foram carregados
+    if (courses.value.length === 0) {
+        await loadCourses();
+    }
 };
 
 const closeModal = () => {
@@ -233,8 +263,14 @@ const handleSubmit = async () => {
   }
 };
 
-const openDeleteModal = (discipline: Discipline) => {
-  selectedDiscipline.value = discipline;
+const openDeleteModal = (discipline: DisciplineAggregated) => {
+  selectedDiscipline.value = {
+    id: discipline.id,
+    name: discipline.name,
+    abbreviation: discipline.abbreviation,
+    courseId: discipline.course.id
+  } as Discipline;
+
   showDeleteModal.value = true;
 };
 

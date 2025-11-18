@@ -3,10 +3,10 @@ import type {
   User,
   Professor,
   Course,
-  Discipline,
   Classroom,
   APIError,
   EventAggregated,
+  DisciplineAggregated,
 } from '@/types';
 
 // ==================== USERS ====================
@@ -136,9 +136,9 @@ export const coursesService = {
 
 // ==================== DISCIPLINES ====================
 export const disciplinesService = {
-  async getAll(): Promise<Discipline[]> {
+  async getAll(): Promise<DisciplineAggregated[]> {
     try {
-      const response = await api.get<Discipline[]>('/admin/disciplines');
+      const response = await api.get<DisciplineAggregated[]>('/dashboard/disciplines');
       return response.data;
     } catch (error) {
       throw error as APIError;
@@ -159,7 +159,11 @@ export const disciplinesService = {
 
   async update(
     id: string,
-    data: { name: string; abbreviation: string; courseId: string }
+    data: { 
+        name: string; 
+        abbreviation: string; 
+        courseId: string 
+    }
   ): Promise<void> {
     try {
       await api.put(`/admin/disciplines/${id}`, data);
