@@ -25,7 +25,6 @@
                     <tr>
                         <th>Nome</th>
                         <th>Abreviação</th>
-                        <th>Curso</th>
                         <th>Ações</th>
                     </tr>
                 </thead>

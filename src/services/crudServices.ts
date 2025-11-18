@@ -5,7 +5,6 @@ import type {
   Course,
   Discipline,
   Classroom,
-  Event,
   APIError,
   EventAggregated,
 } from '@/types';

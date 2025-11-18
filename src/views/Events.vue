@@ -37,7 +37,7 @@
                 <tbody>
                     <tr v-for="event in events" :key="event.id">
                         <td>{{ event.description }}</td>
-                        <td>{{ event.weekday }}</td>
+                        <td>{{ getDayLabel(event.weekday as DaysEnum) }}</td>
                         <td>{{ event.startTime }}</td>
                         <td>{{ event.endTime }}</td>
                         <td>{{ event.classroom?.description }}</td>
@@ -56,8 +56,8 @@
                         </td>
                     </tr>
                     <tr v-if="events.length === 0">
-                        <td colspan="5" style="text-align: center; padding: 2rem;">
-                            Nenhuma evento cadastrado
+                        <td colspan="9" style="text-align: center; padding: 2rem;">
+                            Nenhum evento cadastrado
                         </td>
                     </tr>
                 </tbody>
@@ -68,7 +68,7 @@
         <div v-if="showModal" class="modal-overlay" @click="closeModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
-                    <h2>{{ isEditing ? 'Editar' : 'Novo' }} Sala</h2>
+                    <h2>{{ isEditing ? 'Editar' : 'Novo' }} Evento</h2>
                     <button @click="closeModal" class="btn-close">✕</button>
                 </div>
 
@@ -81,39 +81,66 @@
 
                     <div class="input-group">
                         <label for="weekday" class="input-label">Dia da Semana *</label>
-                        <input id="weekday" v-model="formData.weekday" type="text" class="input-field" required />
+                        <select id="weekday" v-model="formData.weekday" class="input-field" required>
+                            <option value="" disabled>Selecione o dia</option>
+                            <option v-for="day in weekdays" :key="day.value" :value="day.value">
+                                {{ day.label }}
+                            </option>
+                        </select>
                     </div>
 
                     <div class="input-group">
                         <label for="startTime" class="input-label">Início do Evento *</label>
-                        <input id="startTime" v-model="formData.startTime" type="text" class="input-field" required />
+                        <input id="startTime" v-model="formData.startTime" type="time" class="input-field" required />
                     </div>
 
                     <div class="input-group">
                         <label for="endTime" class="input-label">Fim do Evento *</label>
-                        <input id="endTime" v-model="formData.endTime" type="text" class="input-field" required />
+                        <input id="endTime" v-model="formData.endTime" type="time" class="input-field" required />
                     </div>
 
                     <div class="input-group">
                         <label for="classroomId" class="input-label">Sala *</label>
-                        <input id="classroomId" v-model="formData.classroomDesc" type="text" class="input-field"
-                            required />
+                        <select id="classroomId" v-model="formData.classroomId" class="input-field" required>
+                            <option value="" disabled>Selecione uma sala</option>
+                            <option v-for="classroom in classrooms" :key="classroom.id" :value="classroom.id">
+                                {{ classroom.description }}
+                            </option>
+                        </select>
                     </div>
 
                     <div class="input-group">
                         <label for="professorId" class="input-label">Professor *</label>
-                        <input id="professorId" v-model="formData.professorDesc" type="text" class="input-field"
-                            required />
+                        <select id="professorId" v-model="formData.professorId" class="input-field" required>
+                            <option value="" disabled>Selecione um professor</option>
+                            <option v-for="professor in professors" :key="professor.id" :value="professor.id">
+                                {{ professor.name }}
+                            </option>
+                        </select>
                     </div>
 
                     <div class="input-group">
                         <label for="courseId" class="input-label">Curso *</label>
-                        <input id="courseId" v-model="formData.courseDesc" type="text" class="input-field" required />
+                        <select id="courseId" v-model="formData.courseId" class="input-field" required>
+                            <option value="" disabled>Selecione um curso</option>
+                            <option v-for="course in courses" :key="course.id" :value="course.id">
+                                {{ course.name }}
+                            </option>
+                        </select>
                     </div>
 
                     <div class="input-group">
                         <label for="disciplineId" class="input-label">Disciplina *</label>
-                        <input id="disciplineId" v-model="formData.disciplineDesc" type="text" class="input-field" required />
+                        <select id="disciplineId" v-model="formData.disciplineId" class="input-field" required>
+                            <option value="" disabled>Selecione uma disciplina</option>
+                            <option v-for="discipline in disciplines" :key="discipline.id" :value="discipline.id">
+                                {{ discipline.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div v-if="loadingOptions" class="alert alert-info">
+                        Carregando opções...
                     </div>
 
                     <div v-if="formError" class="alert alert-error">
@@ -124,7 +151,7 @@
                         <button type="button" @click="closeModal" class="btn btn-secondary">
                             Cancelar
                         </button>
-                        <button type="submit" class="btn btn-primary" :disabled="saving">
+                        <button type="submit" class="btn btn-primary" :disabled="saving || loadingOptions">
                             {{ saving ? 'Salvando...' : 'Salvar' }}
                         </button>
                     </div>
@@ -141,7 +168,7 @@
                 </div>
 
                 <p class="modal-text">
-                    Tem certeza que deseja excluir a evento
+                    Tem certeza que deseja excluir o evento
                     <strong>{{ selectedEvent?.description }}</strong>?
                     Esta ação não pode ser desfeita.
                 </p>
@@ -161,15 +188,38 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { eventsService } from '@/services/crudServices';
-import type { Event, EventAggregated } from '@/types';
+import { eventsService, classroomsService, professorsService, coursesService, disciplinesService } from '@/services/crudServices';
+import type { Event, EventAggregated, Classroom, Professor, Course, Discipline, DaysEnum } from '@/types';
 import PlusIcon from '@/assets/icons/plus_icon.svg';
 import EditIcon from '@/assets/icons/edit_icon.svg';
 import DeleteIcon from '@/assets/icons/delete_icon.svg';
 
+// Mapeamento de dias da semana (inglês -> português)
+const weekdays = [
+    { value: 'Monday' as DaysEnum, label: 'Segunda-feira' },
+    { value: 'Tuesday' as DaysEnum, label: 'Terça-feira' },
+    { value: 'Wednesday' as DaysEnum, label: 'Quarta-feira' },
+    { value: 'Thursday' as DaysEnum, label: 'Quinta-feira' },
+    { value: 'Friday' as DaysEnum, label: 'Sexta-feira' },
+    { value: 'Saturday' as DaysEnum, label: 'Sábado' },
+];
+
+// Função auxiliar para converter dia em inglês para português
+const getDayLabel = (dayValue: DaysEnum): string => {
+    const day = weekdays.find(d => d.value === dayValue);
+    return day ? day.label : dayValue;
+};
+
 const events = ref<EventAggregated[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+// Dados dos dropdowns
+const classrooms = ref<Classroom[]>([]);
+const professors = ref<Professor[]>([]);
+const courses = ref<Course[]>([]);
+const disciplines = ref<Discipline[]>([]);
+const loadingOptions = ref(false);
 
 const showModal = ref(false);
 const isEditing = ref(false);
@@ -190,10 +240,6 @@ const formData = reactive({
     professorId: '',
     courseId: '',
     disciplineId: '',
-    courseDesc: '',
-    disciplineDesc: '',
-    professorDesc: '',
-    classroomDesc: '',
 });
 
 const loadEvents = async () => {
@@ -210,14 +256,44 @@ const loadEvents = async () => {
     }
 };
 
-const openCreateModal = () => {
+// Carregar dados para os dropdowns
+const loadDropdownOptions = async () => {
+    loadingOptions.value = true;
+    
+    try {
+        const [classroomsData, professorsData, coursesData, disciplinesData] = await Promise.all([
+            classroomsService.getAll(),
+            professorsService.getAll(),
+            coursesService.getAll(),
+            disciplinesService.getAll()
+        ]);
+
+        classrooms.value = classroomsData;
+        professors.value = professorsData;
+        courses.value = coursesData;
+        disciplines.value = disciplinesData;
+    } catch (err: any) {
+        formError.value = 'Erro ao carregar opções do formulário';
+        console.error('Erro ao carregar dropdowns:', err);
+    } finally {
+        loadingOptions.value = false;
+    }
+};
+
+const openCreateModal = async () => {
     isEditing.value = false;
     resetForm();
     showModal.value = true;
+    
+    // Carregar opções dos dropdowns se ainda não foram carregadas
+    if (classrooms.value.length === 0) {
+        await loadDropdownOptions();
+    }
 };
 
-const openEditModal = (event: EventAggregated) => {
+const openEditModal = async (event: EventAggregated) => {
     isEditing.value = true;
+    formData.id = event.id;
     formData.description = event.description;
     formData.weekday = event.weekday;
     formData.startTime = event.startTime;
@@ -226,11 +302,13 @@ const openEditModal = (event: EventAggregated) => {
     formData.professorId = event.professor.id;
     formData.courseId = event.course.id;
     formData.disciplineId = event.discipline.id;
-    formData.classroomDesc = event.classroom.description;
-    formData.professorDesc = event.professor.description;
-    formData.courseDesc = event.course.description;
-    formData.disciplineDesc = event.discipline.description;
+    
     showModal.value = true;
+    
+    // Carregar opções dos dropdowns se ainda não foram carregadas
+    if (classrooms.value.length === 0) {
+        await loadDropdownOptions();
+    }
 };
 
 const closeModal = () => {
@@ -240,6 +318,7 @@ const closeModal = () => {
 };
 
 const resetForm = () => {
+    formData.id = '';
     formData.description = '';
     formData.weekday = '';
     formData.startTime = '';
@@ -482,5 +561,28 @@ onMounted(() => {
     gap: var(--spacing-md);
     padding: var(--spacing-lg);
     border-top: 1px solid var(--color-border);
+}
+
+/* Estilo para select */
+select.input-field {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+select.input-field:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.alert-info {
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-md);
 }
 </style>
