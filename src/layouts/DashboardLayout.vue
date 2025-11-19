@@ -61,8 +61,26 @@
       <header class="main-header">
         <h1>{{ pageTitle }}</h1>
         <div class="user-info">
-          <span class="user-name">{{ authStore.user?.fullName }}</span>
           <span class="user-badge" v-if="authStore.isAdmin">Admin</span>
+          <span class="user-name">{{ authStore.user?.fullName }}</span>
+          <button 
+            class="profile-photo-button"
+            @click="openProfileModal"
+            :title="`Clique para ver o perfil de ${authStore.user?.fullName}`"
+          >
+            <img 
+              v-if="authStore.user?.profilePhoto" 
+              :src="authStore.user.profilePhoto" 
+              :alt="`Foto de perfil de ${authStore.user?.fullName}`"
+              class="profile-photo-img"
+            />
+            <div v-else class="profile-photo-placeholder">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+          </button>
         </div>
       </header>
 
@@ -70,13 +88,17 @@
         <router-view />
       </div>
     </main>
+
+    <!-- Profile Modal -->
+    <ProfileModal ref="profileModalRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import ProfileModal from '@/components/ProfileModal.vue';
 import HomeIcon from '@/assets/icons/home_icon.svg';
 import UsersIcon from '@/assets/icons/users_icon.svg';
 import ProfessorsIcon from '@/assets/icons/professors_icon.svg';
@@ -89,6 +111,7 @@ import LogoutIcon from '@/assets/icons/logout_icon.svg';
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const profileModalRef = ref<InstanceType<typeof ProfileModal>>();
 
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
@@ -107,6 +130,11 @@ const handleLogout = () => {
   authStore.logout();
   router.push('/login');
 };
+
+const openProfileModal = () => {
+  console.log(authStore.user)
+  profileModalRef.value?.openModal();
+};
 </script>
 
 <style scoped>
@@ -124,6 +152,8 @@ const handleLogout = () => {
   flex-direction: column;
   box-shadow: var(--shadow-md);
   position: fixed;
+  /* Ensure the sidebar is above everything else in the app */
+  z-index: 2147483647;
   height: 100vh;
   overflow-y: auto;
 }
@@ -250,11 +280,6 @@ const handleLogout = () => {
   gap: var(--spacing-md);
 }
 
-.user-name {
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
 .user-badge {
   background: var(--color-primary);
   color: var(--color-text-on-primary);
@@ -262,6 +287,49 @@ const handleLogout = () => {
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 120px;
+  text-align: right;
+}
+
+.profile-photo-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background-color: var(--color-background);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.profile-photo-button:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.profile-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-text-disabled);
 }
 
 .content-wrapper {

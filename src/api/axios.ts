@@ -28,9 +28,34 @@ api.interceptors.request.use(
   }
 );
 
+// Função auxiliar para converter snake_case em camelCase
+const convertSnakeToCamel = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertSnakeToCamel(item));
+  }
+  
+  if (obj !== null && typeof obj === 'object') {
+    const converted: any = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        // Converter snake_case para camelCase
+        const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+        converted[camelKey] = convertSnakeToCamel(obj[key]);
+      }
+    }
+    return converted;
+  }
+  
+  return obj;
+};
+
 // Interceptador de Response - Tratamento global de erros
 api.interceptors.response.use(
   (response) => {
+    // Converter snake_case para camelCase na resposta
+    if (response.data) {
+      response.data = convertSnakeToCamel(response.data);
+    }
     return response;
   },
   (error: AxiosError<APIError>) => {

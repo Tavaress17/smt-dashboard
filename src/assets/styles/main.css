@@ -412,3 +412,19 @@ input, textarea, select {
 .svg-edit {fill: var(--color-info) !important; color: var(--color-info) !important;}
 
 .svg-delete {fill: var(--color-error) !important; color: var(--color-error) !important;}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+  .user-name {
+    display: none;
+  }
+
+  .profile-photo-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .user-info {
+    gap: var(--spacing-sm);
+  }
+}

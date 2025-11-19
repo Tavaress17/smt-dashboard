@@ -57,9 +57,10 @@ class AuthService {
   /**
    * Atualiza a foto do perfil
    */
-  async updateProfilePhoto(encodedBase64Image: string): Promise<void> {
+  async updateProfilePhoto(encodedBase64Image: string): Promise<User> {
     try {
-      await api.patch('/profile/photo', { encodedBase64Image });
+      const response = await api.patch<User>('/profile/photo', { encodedBase64Image });
+      return response.data;
     } catch (error) {
       throw error as APIError;
     }
@@ -68,10 +69,24 @@ class AuthService {
   /**
    * Obtém a foto do perfil
    */
-  async getProfilePhoto(): Promise<string> {
+  async getProfilePhoto(): Promise<string | null> {
     try {
       const response = await api.get<{ photo: string }>('/profile/photo');
-      return response.data.photo;
+      const raw = response.data?.photo ?? null;
+
+      if (!raw) return null;
+
+      // If backend already returns a data URI (data:image/...), use it as-is.
+      const isDataUri = /^data:image\/(png|jpeg|jpg);base64,/.test(raw);
+      if (isDataUri) return raw;
+
+      // If backend returns a plain base64 string, prefix it as JPEG by default.
+      // This handles cases where the API sends only the base64 payload.
+      const isBase64 = /^[A-Za-z0-9+/=\s]+$/.test(raw);
+      if (isBase64) return `data:image/jpeg;base64,${raw.trim()}`;
+
+      // Fallback: return raw string
+      return raw;
     } catch (error) {
       throw error as APIError;
     }
