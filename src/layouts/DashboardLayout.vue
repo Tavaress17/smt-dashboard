@@ -1,7 +1,20 @@
 <template>
   <div class="dashboard-layout">
-    <!-- Sidebar -->
-    <aside class="sidebar">
+    <!-- Mobile Header -->
+    <MobileHeader 
+      :is-menu-open="isMobileMenuOpen"
+      @toggle-menu="toggleMobileMenu"
+    />
+
+    <!-- Mobile Sidebar -->
+    <MobileSidebar 
+      :is-open="isMobileMenuOpen"
+      @close="closeMobileMenu"
+      @open-profile="openProfileModal"
+    />
+
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar desktop-only">
       <div class="sidebar-header">
         <h2>SMT</h2>
         <p>Dashboard</p>
@@ -58,7 +71,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <header class="main-header">
+      <header class="main-header desktop-only">
         <h1>{{ pageTitle }}</h1>
         <div class="user-info">
           <span class="user-badge" v-if="authStore.isAdmin">Admin</span>
@@ -99,6 +112,8 @@ import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
 import ProfileModal from '@/components/ProfileModal.vue';
+import MobileHeader from '@/components/MobileHeader.vue';
+import MobileSidebar from '@/components/MobileSidebar.vue';
 import HomeIcon from '@/assets/icons/home_icon.svg';
 import UsersIcon from '@/assets/icons/users_icon.svg';
 import ProfessorsIcon from '@/assets/icons/professors_icon.svg';
@@ -112,6 +127,7 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const profileModalRef = ref<InstanceType<typeof ProfileModal>>();
+const isMobileMenuOpen = ref(false);
 
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
@@ -126,13 +142,20 @@ const pageTitle = computed(() => {
   return titles[route.name as string] || 'Dashboard';
 });
 
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false;
+};
+
 const handleLogout = () => {
   authStore.logout();
   router.push('/login');
 };
 
 const openProfileModal = () => {
-  console.log(authStore.user)
   profileModalRef.value?.openModal();
 };
 </script>
@@ -152,7 +175,6 @@ const openProfileModal = () => {
   flex-direction: column;
   box-shadow: var(--shadow-md);
   position: fixed;
-  /* Ensure the sidebar is above everything else in the app */
   z-index: 2147483647;
   height: 100vh;
   overflow-y: auto;
@@ -338,20 +360,68 @@ const openProfileModal = () => {
   overflow-y: auto;
 }
 
-/* Responsividade */
+/* ==================== RESPONSIVIDADE ==================== */
 @media (max-width: 768px) {
-  .sidebar {
-    width: 70px;
+  /* Esconder sidebar e header desktop */
+  .desktop-only {
+    display: none !important;
   }
 
-  .nav-text,
-  .sidebar-header p,
-  .nav-section-title {
-    display: none;
-  }
-
+  /* Ajustar main content */
   .main-content {
-    margin-left: 70px;
+    margin-left: 0;
+    margin-top: 64px;
+  }
+
+  .content-wrapper {
+    padding: var(--spacing-md);
+  }
+
+  /* Ajustar layout das views */
+  .dashboard-layout :deep(.view-header) {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .dashboard-layout :deep(.stats-grid) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .dashboard-layout :deep(.table-container) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-layout :deep(.table) {
+    min-width: 600px;
+  }
+
+  /* Melhorar modais em mobile */
+  .dashboard-layout :deep(.modal-overlay) {
+    padding: var(--spacing-sm);
+  }
+
+  .dashboard-layout :deep(.modal-content) {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-wrapper {
+    padding: var(--spacing-sm);
+  }
+
+  .dashboard-layout :deep(.btn) {
+    font-size: 0.875rem;
+    padding: 8px 16px;
+  }
+
+  .dashboard-layout :deep(.table) {
+    font-size: 0.8125rem;
+  }
+
+  .dashboard-layout :deep(.input-field) {
+    font-size: 16px; /* Previne zoom no iOS */
   }
 }
 </style>
